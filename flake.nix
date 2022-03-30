@@ -17,13 +17,14 @@
         overlays = [(import rust-overlay)];
         pkgs = import nixpkgs {inherit system overlays;};
         pkgs-cross-wasm-wasi = import nixpkgs {
-      inherit system ;
-      crossSystem = nixpkgs.lib.systems.examples.wasi32
-      // {
-        rustc.config = "wasm32-wasi";
-    };
-    useLLVM = true;
-};
+          inherit system;
+          crossSystem =
+            nixpkgs.lib.systems.examples.wasi32
+            // {
+              rustc.config = "wasm32-wasi";
+            };
+          useLLVM = true;
+        };
         rust-cross-wasm-wasi-ToolchainToml = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
 
         cargoLock = {
@@ -36,16 +37,18 @@
           rust-cross-wasm-wasi-ToolchainToml
         ];
       in rec {
-        packages.wasm-test = (pkgs-cross-wasm-wasi.makeRustPlatform {
-          cargo = rust-cross-wasm-wasi-ToolchainToml;
-          rustc = rust-cross-wasm-wasi-ToolchainToml;
-        }).buildRustPackage {
-          inherit
-            src
-            cargoLock
-            ;
-          name = "wasm-test";
-        };
+        packages.wasm-test =
+          (pkgs-cross-wasm-wasi.makeRustPlatform {
+            cargo = rust-cross-wasm-wasi-ToolchainToml;
+            rustc = rust-cross-wasm-wasi-ToolchainToml;
+          })
+          .buildRustPackage {
+            inherit
+              src
+              cargoLock
+              ;
+            name = "wasm-test";
+          };
         defaultPackage = packages.wasm-test;
         devShell = pkgs.mkShell {
           inherit nativeBuildInputs;
